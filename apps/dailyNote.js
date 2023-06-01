@@ -12,10 +12,10 @@ export class dailyNote extends plugin {
       event: 'message',
       priority: 300,
       rule: [
-        {
-          reg: '^(#签到|#*米游社(自动)*签到)(force)*$',
-          fnc: 'sign'
-        },
+        // {
+        //   reg: '^(#签到|#*米游社(自动)*签到)(force)*$',
+        //   fnc: 'sign'
+        // },
         {
           reg: '^#(全部签到|签到任务)(force)*$',
           permission: 'master',
@@ -38,10 +38,6 @@ export class dailyNote extends plugin {
     }
   }
 
-  /** #签到 */
-  async sign () {
-    await MysSign.sign(this.e)
-  }
 
   /** 签到任务 */
   async signTask () {
@@ -49,8 +45,8 @@ export class dailyNote extends plugin {
     await mysSign.signTask(!!this?.e?.msg)
   }
 
-  async signClose () {
-    let mysSign = new MysSign(this.e)
-    await mysSign.signClose()
-  }
+  // async signClose () {
+  //   let mysSign = new MysSign(this.e)
+  //   await mysSign.signClose()
+  // }
 }

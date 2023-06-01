@@ -1,7 +1,8 @@
 import moment from 'moment'
 import lodash from 'lodash'
 import base from '../../genshin/model/base.js'
-import MysApi from './mys/mysApi.js'
+import MysInfo from '../../genshin/model/mys/mysInfo.js'
+import MysApi from '../../genshin/model/mys/mysApi.js'
 import gsCfg from '../../genshin/model/gsCfg.js'
 import User from '../../genshin/model/user.js'
 import common from '../../../lib/common/common.js'
@@ -16,45 +17,6 @@ export default class MysSign extends base {
     this.force = false
 
     this.cfg = gsCfg.getConfig('mys', 'set')
-  }
-
-  static async sign (e) {
-    let mysSign = new MysSign(e)
-
-    if (e.msg.includes('force')) mysSign.force = true
-
-    /** 获取个人ck */
-    let ck = gsCfg.getBingCkSingle(e.user_id)
-
-    if (lodash.isEmpty(ck)) {
-      e.reply('无法签到，请先#绑定cookie\n发送【cookie帮助】查看配置教程', false, { at: true })
-      return false
-    }
-
-    if (signing) {
-      e.reply('原神自动签到进行中，暂不能手动签到...')
-      return false
-    }
-
-    let uids = lodash.map(ck, 'uid')
-
-    if (uids.length > 1) {
-      await e.reply('多账号签到中...')
-    }
-
-    let msg = []
-
-    for (let i in uids) {
-      mysSign.ckNum = Number(i) + 1
-      if (i >= 1) await common.sleep(5000)
-      let uid = uids[i]
-      let res = await mysSign.doSign(ck[uid])
-      if (res) msg.push(res.msg)
-    }
-
-    msg = msg.join('\n\n')
-
-    await e.reply(msg)
   }
 
   async doSign (ck, isLog = true) {
@@ -355,39 +317,40 @@ export default class MysSign extends base {
     return msg
   }
 
-  async signClose () {
-    let model = '开启'
-    if (/关闭|取消/.test(this.e.msg)) {
-      model = '关闭'
-    }
+//   async signClose () {
+//     let model = '开启'
+//     if (/关闭|取消/.test(this.e.msg)) {
+//       model = '关闭'
+//     }
 
-    /** 获取个人ck */
-    let ck = gsCfg.getBingCkSingle(this.e.user_id)
+//     /** 获取个人ck */
+//     //let ck = gsCfg.getBingCkSingle(this.e.user_id)
+//     let ck = await MysInfo.checkUidBing(e.user_id)
 
-    if (lodash.isEmpty(ck)) {
-      await this.e.reply(`${model}签到失败，请先#绑定cookie\n发送【cookie帮助】查看配置教程`, false, { at: true })
-      return false
-    }
+//     if (lodash.isEmpty(ck)) {
+//       await this.e.reply(`${model}签到失败，请先#绑定cookie\n发送【cookie帮助】查看配置教程`, false, { at: true })
+//       return false
+//     }
 
-    let autoCk = {}
-    for (let i in ck) {
-      if (!ck[i].isMain) continue
-      autoCk = ck[i]
-      if (model == '开启') {
-        ck[i].autoSign = true
-      } else {
-        ck[i].autoSign = false
-      }
-    }
+//     let autoCk = {}
+//     for (let i in ck) {
+//       if (!ck[i].isMain) continue
+//       autoCk = ck[i]
+//       if (model == '开启') {
+//         ck[i].autoSign = true
+//       } else {
+//         ck[i].autoSign = false
+//       }
+//     }
 
-    if (lodash.isEmpty(autoCk)) return
+//     if (lodash.isEmpty(autoCk)) return
 
-    gsCfg.saveBingCk(this.e.user_id, ck)
+//     gsCfg.saveBingCk(this.e.user_id, ck)
 
-    let msg = `uid:${autoCk.uid}，原神自动签到已${model}`
-    if (model == '开启') {
-      msg += '\n每天将为你自动签到~'
-    }
-    await this.e.reply(msg)
-  }
+//     let msg = `uid:${autoCk.uid}，原神自动签到已${model}`
+//     if (model == '开启') {
+//       msg += '\n每天将为你自动签到~'
+//     }
+//     await this.e.reply(msg)
+//   }
 }
